@@ -1,6 +1,7 @@
 package io.zino.core.atomicTransaction.model;
 
 public class AccountBalance {
+    public final static String SCHEMA_TABLE = "core.account_balances";
     public final static String TABLE = "account_balances";
     public final static String PROP_ID = "id";
     public final static String PROP_ACCOUNT_ID = "accountId";

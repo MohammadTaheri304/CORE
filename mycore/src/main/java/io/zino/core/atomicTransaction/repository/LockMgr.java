@@ -14,9 +14,9 @@ public class LockMgr {
         return instance;
     }
 
-    public StampedLock getLock(long id){
+    public StampedLock getLock(long id) {
         StampedLock lock = lockMap.get(id);
-        if(lock==null){
+        if (lock == null) {
             lock = new StampedLock();
             lockMap.put(id, lock);
         }
