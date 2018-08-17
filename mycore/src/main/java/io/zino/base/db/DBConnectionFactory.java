@@ -1,23 +1,26 @@
 package io.zino.base.db;
 
+import org.apache.commons.dbcp2.BasicDataSource;
+
 import java.sql.*;
 
 public class DBConnectionFactory {
-    private Connection conn;
+    private BasicDataSource connectionPool;
     private static DBConnectionFactory instance =
             new DBConnectionFactory(
                     "jdbc:postgresql://localhost:5432/CORE",
                     "core",
                     "core");
 
-    private String url;
-    private String user;
-    private String password;
 
-    private DBConnectionFactory(String url, String user,String password){
-        this.url = url;
-        this.user = user;
-        this.password = password;
+    private DBConnectionFactory(String url, String user, String password) {
+        String dbUrl = url;
+        connectionPool = new BasicDataSource();
+        connectionPool.setUsername(user);
+        connectionPool.setPassword(password);
+        connectionPool.setDriverClassName("org.postgresql.Driver");
+        connectionPool.setUrl(dbUrl);
+        connectionPool.setInitialSize(1);
     }
 
     public static DBConnectionFactory getInstance() {
@@ -26,7 +29,7 @@ public class DBConnectionFactory {
 
     public Connection getConnection() {
         try {
-            return DriverManager.getConnection(url, user, password);
+            return connectionPool.getConnection();
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
