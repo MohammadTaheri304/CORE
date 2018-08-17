@@ -11,14 +11,14 @@ public class Core {
 //        AccountBalanceRepository.getInstance().createAccountBalance(new AccountBalance(1116, "0.0"));
 //        AccountBalanceRepository.getInstance().createAccountBalance(new AccountBalance(2226, "0.0"));
 
-        boolean res = AtomicTransactionRepository.getInstance().create(new AtomicTransaction(
-                1116,
-                2226,
-                "1700.0"
-        ));
-        System.out.println(res);
-
-        System.out.println("from "+AccountBalanceRepository.getInstance().getAccountBalance(1116));
-        System.out.println("to "+AccountBalanceRepository.getInstance().getAccountBalance(2226));
+//        boolean res = AtomicTransactionRepository.getInstance().create(new AtomicTransaction(
+//                1116,
+//                2226,
+//                "2000.0"
+//        ));
+//        System.out.println(res);
+//
+//        System.out.println("from "+AccountBalanceRepository.getInstance().getAccountBalance(1116));
+//        System.out.println("to "+AccountBalanceRepository.getInstance().getAccountBalance(2226));
     }
 }
