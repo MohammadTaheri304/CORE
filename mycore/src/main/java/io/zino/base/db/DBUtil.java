@@ -10,5 +10,6 @@ public class DBUtil {
     public static final String COMMIT = " COMMIT ";
     public static final String SELECT = " SELECT ";
     public static final String FROM = " FROM ";
-
+    public static final String AND = " AND ";
+    public static final String DELETE_FROM = " DELETE FROM ";
 }

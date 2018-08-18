@@ -1,1 +1,3 @@
 /// mvn -q exec:java
+/// TransactionMr, AccountMgr
+/// transaction, verify, inquery
