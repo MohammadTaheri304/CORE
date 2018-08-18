@@ -1,4 +1,4 @@
-package io.zino.core.transaction.atomicTransaction.service;
+package io.zino.core.transaction.service;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +14,7 @@ public class LockMgr {
         return instance;
     }
 
-    public StampedLock getLock(long id) {
+    synchronized public StampedLock getLock(long id) {
         StampedLock lock = lockMap.get(id);
         if (lock == null) {
             lock = new StampedLock();

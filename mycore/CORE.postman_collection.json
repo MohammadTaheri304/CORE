@@ -1,0 +1,288 @@
+{
+	"variables": [],
+	"info": {
+		"name": "CORE",
+		"_postman_id": "ae90b664-4d4a-5911-8e5b-11e24f4b7096",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "account",
+			"description": "",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"url": {
+							"raw": "http://localhost:8090/account/create?extuid=testac01&password=111&active=true&balance=10000.0",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8090",
+							"path": [
+								"account",
+								"create"
+							],
+							"query": [
+								{
+									"key": "extuid",
+									"value": "testac01",
+									"equals": true,
+									"description": ""
+								},
+								{
+									"key": "password",
+									"value": "111",
+									"equals": true,
+									"description": ""
+								},
+								{
+									"key": "active",
+									"value": "true",
+									"equals": true,
+									"description": ""
+								},
+								{
+									"key": "balance",
+									"value": "10000.0",
+									"equals": true,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "balance",
+					"request": {
+						"url": {
+							"raw": "http://localhost:8090/account/balance?extuid=testac01",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8090",
+							"path": [
+								"account",
+								"balance"
+							],
+							"query": [
+								{
+									"key": "extuid",
+									"value": "testac01",
+									"equals": true,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "active",
+					"request": {
+						"url": {
+							"raw": "http://localhost:8090/account/active?extuid=testac01",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8090",
+							"path": [
+								"account",
+								"active"
+							],
+							"query": [
+								{
+									"key": "extuid",
+									"value": "testac01",
+									"equals": true,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "deactive ",
+					"request": {
+						"url": {
+							"raw": "http://localhost:8090/account/deactive?extuid=testac01",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8090",
+							"path": [
+								"account",
+								"deactive"
+							],
+							"query": [
+								{
+									"key": "extuid",
+									"value": "testac01",
+									"equals": true,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "transaction",
+			"description": "",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"url": {
+							"raw": "http://localhost:8090/transaction/tnx?extuid&from&temp&to&amount&description",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8090",
+							"path": [
+								"transaction",
+								"tnx"
+							],
+							"query": [
+								{
+									"key": "extuid",
+									"value": "",
+									"equals": false,
+									"description": ""
+								},
+								{
+									"key": "from",
+									"value": "",
+									"equals": false,
+									"description": ""
+								},
+								{
+									"key": "temp",
+									"value": "",
+									"equals": false,
+									"description": ""
+								},
+								{
+									"key": "to",
+									"value": "",
+									"equals": false,
+									"description": ""
+								},
+								{
+									"key": "amount",
+									"value": "",
+									"equals": false,
+									"description": ""
+								},
+								{
+									"key": "description",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "inquery",
+					"request": {
+						"url": {
+							"raw": "http://localhost:8090/transaction/inquery?extuid",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8090",
+							"path": [
+								"transaction",
+								"inquery"
+							],
+							"query": [
+								{
+									"key": "extuid",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "verify",
+					"request": {
+						"url": {
+							"raw": "http://localhost:8090/transaction/verify?extuid",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8090",
+							"path": [
+								"transaction",
+								"verify"
+							],
+							"query": [
+								{
+									"key": "extuid",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

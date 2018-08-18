@@ -1,8 +1,5 @@
 package io.zino.core.transaction.servlet.transaction.dto;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
 public class InqueryDTO {
     private String extuid;
     private boolean verify;
