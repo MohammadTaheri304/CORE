@@ -26,8 +26,8 @@ public class Core {
     public static void main(String[] args) throws Exception {
         Core core = new Core();
         core.runFlyWay();
-        //core.runJetty();
-        core.f0();
+        core.runJetty();
+        //core.f0();
     }
 
     private void runJetty() throws Exception {
@@ -78,7 +78,7 @@ public class Core {
         Account ac1w = AccountService.getInstance().findByExtUid("ac1");
         Account ac2w = AccountService.getInstance().findByExtUid("ac2");
 
-        final String TNX_PREF = "ex-1-";
+        final String TNX_PREF = "ex-3-";
 
         boolean resI = TransactionService.getInstance().create(
                 new Transaction(
@@ -103,8 +103,8 @@ public class Core {
             boolean res = TransactionService.getInstance().create(
                     new Transaction(
                             TNX_PREF + i,
-                            ac1w.getId(),
                             ac2w.getId(),
+                            ac1w.getId(),
                             new BigDecimal(1),
                             ""
                     )
