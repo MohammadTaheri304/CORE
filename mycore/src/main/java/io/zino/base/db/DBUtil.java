@@ -12,4 +12,11 @@ public class DBUtil {
     public static final String FROM = " FROM ";
     public static final String AND = " AND ";
     public static final String DELETE_FROM = " DELETE FROM ";
+    public static final String ORDER_BY = " ORDER BY ";
+    public static final String ASC = " ASC ";
+    public static final String DESC = " DESC ";
+    public static final String LIMIT = " LIMIT ";
+    public static final String OFFSET = " OFFSET ";
+    public static final String INNER_JOIN = " INNER JOIN ";
+    public static final String ON = " ON ";
 }

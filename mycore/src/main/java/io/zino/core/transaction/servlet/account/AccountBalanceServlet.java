@@ -1,6 +1,7 @@
 package io.zino.core.transaction.servlet.account;
 
 import com.google.gson.Gson;
+import io.zino.core.transaction.model.account.AccountBalance;
 import io.zino.core.transaction.servlet.account.dto.AccountBalanceDTO;
 import io.zino.core.transaction.service.account.AccountService;
 
@@ -26,14 +27,14 @@ public class AccountBalanceServlet extends HttpServlet {
             return;
         }
 
-        BigDecimal balance = AccountService.getInstance().getBalance(accountExtUid);
-        if(balance==null){
+        AccountBalance acBalance = AccountService.getInstance().getBalance(accountExtUid);
+        if(acBalance==null){
             response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
             return;
         }
 
         AccountBalanceDTO dto = new AccountBalanceDTO();
-        dto.setBalance(balance);
+        dto.setBalance(acBalance.getBalance());
 
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_OK);

@@ -33,7 +33,7 @@ public class CreateAccountServlet extends HttpServlet {
         String balanceString = request.getParameter("balance");
         BigDecimal balance = balanceString==null ? new BigDecimal(0) : new BigDecimal(balanceString);
 
-        Account account = new Account(extuid, active, balance);
+        Account account = new Account(extuid, active);
         boolean res = AccountService.getInstance().create(account);
         if (!res) {
             response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);

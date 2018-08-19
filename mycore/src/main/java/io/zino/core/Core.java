@@ -59,46 +59,68 @@ public class Core {
                 "jdbc:postgresql://localhost:5432/CORE",
                 "core",
                 "core");
+        flyway.setSchemas("core");
         flyway.setLocations("io/zino/core/db/migrations/");
-        flyway.setBaselineOnMigrate(true);
         flyway.migrate();
+
     }
 
-    private void f0() {
+    private void f0() throws Exception {
 
         int count = 100000;
 
-        Account ac1 = new Account("ac1", true, new BigDecimal(100000));
-        Account ac2 = new Account("ac2", true, new BigDecimal(100000));
+        Account ac1 = new Account("ac1", true);
+        Account ac2 = new Account("ac2", true);
         AccountService.getInstance().create(ac1);
         AccountService.getInstance().create(ac2);
 
+        Account coreAc = AccountService.getInstance().findByExtUid(Account.CORE_ACCOUNT_EXTUID);
         Account ac1w = AccountService.getInstance().findByExtUid("ac1");
         Account ac2w = AccountService.getInstance().findByExtUid("ac2");
 
+        final String TNX_PREF = "ex-3-";
+
+        boolean resI = TransactionService.getInstance().create(
+                new Transaction(
+                        TNX_PREF+"init",
+                        coreAc.getId(),
+                        ac1w.getId(),
+                        new BigDecimal(100000),
+                        ""
+                )
+        );
+        if (resI) {
+            Transaction init = TransactionService.getInstance().findByExtUid(TNX_PREF+"init");
+            if(!TransactionService.getInstance().verify(init)){
+                throw new Exception("!!!!!!!");
+            }
+        } else throw new Exception("!!!!!!!");
+
         long startTime = System.currentTimeMillis();
 
-        IntStream.rangeClosed(0, count).boxed().collect(Collectors.toList())
+        IntStream.rangeClosed(1, count).boxed().collect(Collectors.toList())
                 .parallelStream().forEach(i -> {
             boolean res = TransactionService.getInstance().create(
                     new Transaction(
-                            "ex-4-" + i,
-                            ac1w.getId(),
+                            TNX_PREF + i,
                             ac2w.getId(),
+                            ac1w.getId(),
                             new BigDecimal(1),
                             ""
                     )
             );
             if (res) {
-                Transaction tnx = TransactionService.getInstance().findByExtUid("ex-4-" + i);
-                TransactionService.getInstance().verify(tnx);
-            }
+                Transaction tnx = TransactionService.getInstance().findByExtUid(TNX_PREF + i);
+                if (!TransactionService.getInstance().verify(tnx)){
+                    System.out.println("@@@");
+                }
+            }else System.out.println("???");
         });
         long endTime = System.currentTimeMillis();
         System.out.println("Total time:" + (endTime - startTime) + " TPS:" + (1000 * (double) count / (endTime - startTime)));
 
-        System.out.println("from " + AccountService.getInstance().findByExtUid("ac1").getBalance());
-        System.out.println("to " + AccountService.getInstance().findByExtUid("ac2").getBalance());
+        System.out.println("from " + AccountService.getInstance().getBalance("ac1").getBalance());
+        System.out.println("to " + AccountService.getInstance().getBalance("ac2").getBalance());
     }
 
 
