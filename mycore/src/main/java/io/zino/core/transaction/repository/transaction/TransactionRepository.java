@@ -2,7 +2,7 @@ package io.zino.core.transaction.repository.transaction;
 
 import io.zino.base.db.DBConnectionFactory;
 import io.zino.base.db.DBUtil;
-import io.zino.core.transaction.model.account.Account;
+import io.zino.core.transaction.model.account.AccountBalance;
 import io.zino.core.transaction.model.transaction.Transaction;
 
 import java.math.BigDecimal;
@@ -22,20 +22,25 @@ public class TransactionRepository {
         return instance;
     }
 
-    private String getBalanceQuery(long id){
+    private String getAccountBalanceQuery(long id) {
         StringBuilder query = new StringBuilder()
                 .append(DBUtil.SELECT)
-                .append(Account.PROP_BALANCE)
+                .append("*")
                 .append(DBUtil.FROM)
-                .append(Account.SCHEMA_TABLE)
+                .append(AccountBalance.SCHEMA_TABLE)
                 .append(DBUtil.WHERE)
-                .append(Account.PROP_ID)
-                .append("=" + id + ";");
+                .append(AccountBalance.PROP_ACCOUNT_ID)
+                .append("=" + id)
+                .append(DBUtil.ORDER_BY)
+                .append(AccountBalance.PROP_ID)
+                .append(DBUtil.DESC)
+                .append(DBUtil.LIMIT)
+                .append(1);
 
         return query.toString();
     }
 
-    private String insertTransactionQuery(Transaction transaction){
+    private String insertTransactionQuery(Transaction transaction) {
         StringBuilder createQuery = new StringBuilder()
                 .append(DBUtil.INSERT_INTO)
                 .append(Transaction.SCHEMA_TABLE)
@@ -70,21 +75,34 @@ public class TransactionRepository {
         return createQuery.toString();
     }
 
-    private String updateAccountBalanceQuery(long id, BigDecimal newBalance){
+    private String updateAccountBalanceQuery(AccountBalance accountBalance) {
         StringBuilder updateQuery = new StringBuilder()
-                .append(DBUtil.UPDATE)
-                .append(Account.SCHEMA_TABLE)
-                .append(DBUtil.SET)
-                .append(Account.PROP_BALANCE)
-                .append("=" + newBalance)
-                .append(DBUtil.WHERE)
-                .append(Account.PROP_ID)
-                .append("=" + id + ";");
+                .append(DBUtil.INSERT_INTO)
+                .append(AccountBalance.SCHEMA_TABLE)
+                .append("(")
+                .append(AccountBalance.PROP_ACCOUNT_ID)
+                .append(", ")
+                .append(AccountBalance.PROP_LAST_BALANCE_ID)
+                .append(", ")
+                .append(AccountBalance.PROP_TRANSACTION_EXTUID)
+                .append(", ")
+                .append(AccountBalance.PROP_BALANCE)
+                .append(")")
+                .append(DBUtil.VALUES)
+                .append("(")
+                .append(accountBalance.getAccountId())
+                .append(", ")
+                .append(accountBalance.getLastBalanceId())
+                .append(", '")
+                .append(accountBalance.getTransactionExtUid())
+                .append("', ")
+                .append(accountBalance.getBalance())
+                .append(");");
 
         return updateQuery.toString();
     }
 
-    private String updateTransactionVerifyQuery(long id){
+    private String updateTransactionVerifyQuery(long id) {
         StringBuilder updateQuery = new StringBuilder()
                 .append(DBUtil.UPDATE)
                 .append(Transaction.SCHEMA_TABLE)
@@ -104,7 +122,7 @@ public class TransactionRepository {
         return updateQuery.toString();
     }
 
-    private String selectTransactionQuery(String extUid){
+    private String selectTransactionQuery(String extUid) {
         StringBuilder findScript = new StringBuilder()
                 .append(DBUtil.SELECT)
                 .append(" * ")
@@ -117,7 +135,7 @@ public class TransactionRepository {
         return findScript.toString();
     }
 
-    private String selectTransactionQuery(long id){
+    private String selectTransactionQuery(long id) {
         StringBuilder findScript = new StringBuilder()
                 .append(DBUtil.SELECT)
                 .append(" * ")
@@ -130,7 +148,7 @@ public class TransactionRepository {
         return findScript.toString();
     }
 
-    private String deleteTransactionQuery(long id){
+    private String deleteTransactionQuery(long id) {
         StringBuilder deleteQuery = new StringBuilder()
                 .append(DBUtil.DELETE_FROM)
                 .append(Transaction.SCHEMA_TABLE)
@@ -149,21 +167,36 @@ public class TransactionRepository {
                 throw new Exception("zero/negetive amount!!");
             }
 
-            ResultSet fromBalanceResult = conn.createStatement().executeQuery(getBalanceQuery(transaction.getFromAccountId()));
+            ResultSet fromBalanceResult = conn.createStatement().executeQuery(getAccountBalanceQuery(transaction.getFromAccountId()));
             if (!fromBalanceResult.next()) {
                 throw new Exception("account balance not found");
             }
-            BigDecimal fromBalance = fromBalanceResult.getBigDecimal(Account.PROP_BALANCE);
-            BigDecimal newFromBalance = fromBalance.add(transaction.getAmount().negate());
+            AccountBalance fromLastAccountBalance = new AccountBalance(
+                    fromBalanceResult.getLong(AccountBalance.PROP_ACCOUNT_ID),
+                    fromBalanceResult.getLong(AccountBalance.PROP_LAST_BALANCE_ID),
+                    fromBalanceResult.getString(AccountBalance.PROP_TRANSACTION_EXTUID),
+                    fromBalanceResult.getBigDecimal(AccountBalance.PROP_BALANCE)
+            );
+            fromLastAccountBalance.setId( fromBalanceResult.getLong(AccountBalance.PROP_ID));
+            fromLastAccountBalance.setCreationDate( fromBalanceResult.getDate(AccountBalance.PROP_CREATION_DATE));
 
+            BigDecimal newFromBalance = fromLastAccountBalance.getBalance().add(transaction.getAmount().negate());
             if (newFromBalance.compareTo(BigDecimal.ZERO) <= 0) {
                 throw new Exception("not enough money!");
             }
 
+            AccountBalance newLastAccountBalance = new AccountBalance(
+                    transaction.getFromAccountId(),
+                    fromLastAccountBalance.getId(),
+                    transaction.getExtuid(),
+                    newFromBalance
+                    );
+
+
             String query = new StringBuilder()
                     .append(DBUtil.BEGIN + ";")
                     .append(insertTransactionQuery(transaction))
-                    .append(updateAccountBalanceQuery(transaction.getFromAccountId(), newFromBalance))
+                    .append(updateAccountBalanceQuery(newLastAccountBalance))
                     .append(DBUtil.COMMIT + ";")
                     .toString();
             conn.setAutoCommit(false);
@@ -180,17 +213,40 @@ public class TransactionRepository {
         try (Connection conn = DBConnectionFactory.getInstance().getConnection()) {
             Transaction transaction = findById(id);
 
-            ResultSet toBalanceResult = conn.createStatement().executeQuery(getBalanceQuery(transaction.getToAccountId()));
-            if (!toBalanceResult.next()) {
-                throw new Exception("account balance not found");
+            AccountBalance newLastAccountBalance = null;
+
+            ResultSet toBalanceResult = conn.createStatement().executeQuery(getAccountBalanceQuery(transaction.getToAccountId()));
+            if (toBalanceResult.next()) {
+                AccountBalance toLastAccountBalance = new AccountBalance(
+                        toBalanceResult.getLong(AccountBalance.PROP_ACCOUNT_ID),
+                        toBalanceResult.getLong(AccountBalance.PROP_LAST_BALANCE_ID),
+                        toBalanceResult.getString(AccountBalance.PROP_TRANSACTION_EXTUID),
+                        toBalanceResult.getBigDecimal(AccountBalance.PROP_BALANCE)
+                );
+                toLastAccountBalance.setId( toBalanceResult.getLong(AccountBalance.PROP_ID));
+                toLastAccountBalance.setCreationDate( toBalanceResult.getDate(AccountBalance.PROP_CREATION_DATE));
+
+                BigDecimal newToBalance = toLastAccountBalance.getBalance().add(transaction.getAmount());
+                newLastAccountBalance = new AccountBalance(
+                        transaction.getToAccountId(),
+                        toLastAccountBalance.getId(),
+                        transaction.getExtuid(),
+                        newToBalance
+                );
+            }else{
+                BigDecimal newToBalance = transaction.getAmount();
+                newLastAccountBalance = new AccountBalance(
+                        transaction.getToAccountId(),
+                        null,
+                        transaction.getExtuid(),
+                        newToBalance
+                );
             }
-            BigDecimal toBalance = toBalanceResult.getBigDecimal(Account.PROP_BALANCE);
-            BigDecimal newToBalance = toBalance.add(transaction.getAmount());
 
             String query = new StringBuilder()
                     .append(DBUtil.BEGIN + ";")
                     .append(updateTransactionVerifyQuery(id))
-                    .append(updateAccountBalanceQuery(transaction.getToAccountId(), newToBalance))
+                    .append(updateAccountBalanceQuery(newLastAccountBalance))
                     .append(DBUtil.COMMIT + ";")
                     .toString();
             conn.setAutoCommit(false);

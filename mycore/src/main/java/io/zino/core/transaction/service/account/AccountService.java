@@ -1,6 +1,7 @@
 package io.zino.core.transaction.service.account;
 
 import io.zino.core.transaction.model.account.Account;
+import io.zino.core.transaction.model.account.AccountBalance;
 import io.zino.core.transaction.repository.account.AccountRepository;
 
 import java.math.BigDecimal;
@@ -44,9 +45,7 @@ public class AccountService {
         return AccountRepository.getInstance().findByExtUid(extUid);
     }
 
-    public BigDecimal getBalance(String extUid){
-        Account ac = AccountRepository.getInstance().findByExtUid(extUid);
-        if(ac==null) return null;
-        return ac.getBalance();
+    public AccountBalance getBalance(String extUid){
+        return AccountRepository.getInstance().getBalance(extUid);
     }
 }
