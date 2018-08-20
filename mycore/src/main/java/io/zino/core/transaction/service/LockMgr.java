@@ -1,12 +1,11 @@
 package io.zino.core.transaction.service;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.StampedLock;
 
 public class LockMgr {
 
-    private Map<Long, StampedLock> lockMap = new HashMap<Long, StampedLock>();
+    private ConcurrentHashMap<Long, StampedLock> lockMap = new ConcurrentHashMap<Long, StampedLock>();
 
     private static LockMgr instance = new LockMgr();
 
@@ -14,12 +13,7 @@ public class LockMgr {
         return instance;
     }
 
-    synchronized public StampedLock getLock(long id) {
-        StampedLock lock = lockMap.get(id);
-        if (lock == null) {
-            lock = new StampedLock();
-            lockMap.put(id, lock);
-        }
-        return lock;
+    public StampedLock getLock(long id) {
+        return lockMap.computeIfAbsent(id, insertedKey -> new StampedLock());
     }
 }
